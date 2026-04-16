@@ -1,54 +1,105 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. SETUP
-API_KEY = "PASTE_YOUR_GEMINI_KEY_HERE" 
+# 1. BRAIN SETUP (Update with your key)
+API_KEY = "AQ.Ab8RN6LEo-qIfyXNpzj5_lR4tT2PR4OsdoccD4dto0tRdo5UsA"
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-1.5-pro') # Using 'Pro' for better 3D/logic
+model = genai.GenerativeModel('gemini-2.5-flash')
 
-# 2. PRO-LEVEL UI/UX
-st.set_page_config(page_title="ProDash.AI | Studio", page_icon="💎", layout="wide")
+# 2. THE "GEMINI" UI/UX DESIGN
+st.set_page_config(page_title="ProDash.AI", page_icon="✦", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp {background-color: #050505; color: #E0E0E0;}
-    .sidebar .sidebar-content {background-image: linear-gradient(#111, #050505);}
-    .main-header {
-        font-size: 50px; font-weight: 900;
-        background: linear-gradient(45deg, #00FFA3, #03A9F4, #AF40FF);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    /* Main Background and Text */
+    .stApp {
+        background-color: #131314; 
+        color: #E3E3E3;
+        font-family: 'Inter', sans-serif;
     }
-    .stButton>button {background-color: #1A1C24; border: 1px solid #00FFA3; color: white; border-radius: 20px;}
+    
+    /* Hiding the default Streamlit header */
+    header {visibility: hidden;}
+    
+    /* Gemini-style Glowing Title */
+    .gemini-title {
+        font-size: 42px;
+        font-weight: 600;
+        letter-spacing: -1px;
+        background: linear-gradient(90deg, #4285F4, #9B72CB, #D96570);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+    }
+
+    /* Professional Sidebar */
+    section[data-testid="stSidebar"] {
+        background-color: #1e1e1f !important;
+        border-right: 1px solid #333;
+    }
+
+    /* Chat Input Styling */
+    .stChatInputContainer {
+        padding-bottom: 20px;
+        background-color: transparent !important;
+    }
+    
+    /* Message Bubbles */
+    div[data-testid="stChatMessage"] {
+        background-color: transparent !important;
+        border-radius: 15px;
+        margin-bottom: 10px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. THE "INSCRIPTION" SIDEBAR
+# 3. INTERFACE LAYOUT
+st.markdown('<p class="gemini-title">✦ ProDash.AI</p>', unsafe_allow_html=True)
+
 with st.sidebar:
-    st.markdown("<h1 style='color: #00FFA3;'>INSCRIPTION</h1>", unsafe_allow_html=True)
-    product_type = st.selectbox("Product Category", ["3D Model (STL/OBJ)", "UI/UX Mockup", "Business Intelligence Dash", "Physical Prototype"])
-    complexity = st.select_slider("System Complexity", options=["Draft", "Standard", "Pro", "Enterprise"])
-    st.divider()
-    st.info(f"Mode: Generating {product_type}")
+    st.markdown("### 🛠️ Inscription Studio")
+    product_mode = st.radio("Focus Area", ["3D Product Design", "UI/UX Layout", "Business Logic", "Data Model"])
+    st.info(f"Mode: {product_mode} Active")
+    if st.button("Clear Workspace"):
+        st.session_state.messages = []
+        st.rerun()
 
-# 4. MAIN WORKSPACE
-st.markdown('<p class="main-header">✦ ProDash.AI Studio</p>', unsafe_allow_html=True)
-
+# 4. CHAT SYSTEM
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Ready to materialize your concept. Describe the product in detail."}]
+    st.session_state.messages = [{"role": "assistant", "content": "How can I help you build today?"}]
 
 for m in st.session_state.messages:
-    with st.chat_message(m["role"]): st.markdown(m["content"])
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
 
-# 5. PRODUCT GENERATION LOGIC
-if prompt := st.chat_input("Inscribe your product requirements..."):
-    # We add the "Context" from the sidebar automatically
-    full_prompt = f"Act as a professional product engineer. Category: {product_type}. Complexity: {complexity}. Task: {prompt}. If 3D, provide specific dimensions and structure."
-    
+if prompt := st.chat_input("Ask anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"): st.markdown(prompt)
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Materializing..."):
-            response = model.generate_content(full_prompt)
+        # We add the "Inscription" context to the prompt behind the scenes
+        full_context = f"Context: The user is in {product_mode} mode. Requirement: {prompt}"
+        response = model.generate_content(full_context)
+        st.markdown(response.text)
+        st.session_state.messages.append({"role": "assistant", "content": response.text})
+import time # Add this at the very top of your file
+
+# ... (Keep your UI and Setup code the same) ...
+
+if prompt := st.chat_input("Inscribe your requirements..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        try:
+            full_context = f"Context: {product_mode}. Requirement: {prompt}"
+            response = model.generate_content(full_context)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e:
+            if "429" in str(e):
+                st.error("🚦 Traffic Jam! Google's free tier is busy. Please wait 30 seconds and try again.")
+            else:
+                st.error(f"An unexpected error occurred: {e}")
