@@ -103,3 +103,12 @@ if prompt := st.chat_input("Inscribe your requirements..."):
                 st.error("🚦 Traffic Jam! Google's free tier is busy. Please wait 30 seconds and try again.")
             else:
                 st.error(f"An unexpected error occurred: {e}")
+                import streamlit as st
+import google.generativeai as genai
+
+# 1. BRAIN SETUP - The "Force Key" Method
+API_KEY = "AIzaSy..." # Double check this is your FRESH key from AI Studio
+genai.configure(api_key=API_KEY, transport='rest') # Adding transport='rest' fixes 401 errors
+
+# Using the newest stable engine
+model = genai.GenerativeModel('gemini-3-flash')
