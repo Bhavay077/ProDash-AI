@@ -1,15 +1,21 @@
 import streamlit as st
 import google.generativeai as genai
+import streamlit as st
+import google.generativeai as genai
 import os
 
-# 1. THE "CLEAN SLATE" CONFIGURATION
-# Get a fresh key from: https://aistudio.google.com/app/apikey
-API_KEY = "AQ.Ab8RN6LEo-qIfyXNpzj5_lR4tT2PR4OsdoccD4dto0tRdo5UsA" 
+# 1. THE "IRONCLAD" SETUP
+API_KEY = "AIzaSyAQ.Ab8RN6LEo-qIfyXNpzj5_lR4tT2PR4OsdoccD4dto0tRdo5UsA" # Double check: Copy-paste your NEW key here
 
-# Force the environment to use this key and use standard web calls (REST)
-# This bypasses the '401 Unauthenticated' errors we saw earlier
+# This prevents the library from looking for OAuth tokens or login cookies
 os.environ["GOOGLE_API_KEY"] = API_KEY
+
+# We configure the library to use ONLY the API key via REST
+# This effectively silences the "Expected OAuth 2 access token" error
 genai.configure(api_key=API_KEY, transport='rest')
+
+# Using the most stable model path
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Using the stable model version
 model = genai.GenerativeModel('gemini-1.5-flash')
