@@ -2,3 +2,10 @@ streamlit
 ollama
 streamlit
 google-generativeai
+streamlit
+google-generativeai
+python-dotenv
+pandas
+openpyxl
+pillow
+audio-recorder-streamlit
