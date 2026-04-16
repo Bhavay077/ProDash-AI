@@ -4,7 +4,9 @@ import google.generativeai as genai
 # 1. BRAIN SETUP (Update with your key)
 API_KEY = "AQ.Ab8RN6LEo-qIfyXNpzj5_lR4tT2PR4OsdoccD4dto0tRdo5UsA"
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-2.5-flash')
+genai.configure(api_key=API_KEY, transport='rest')
+
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 2. THE "GEMINI" UI/UX DESIGN
 st.set_page_config(page_title="ProDash.AI", page_icon="✦", layout="wide")
@@ -104,11 +106,3 @@ if prompt := st.chat_input("Inscribe your requirements..."):
             else:
                 st.error(f"An unexpected error occurred: {e}")
                 import streamlit as st
-import google.generativeai as genai
-
-# 1. BRAIN SETUP - The "Force Key" Method
-API_KEY = "AIzaSy..." # Double check this is your FRESH key from AI Studio
-genai.configure(api_key=API_KEY, transport='rest') # Adding transport='rest' fixes 401 errors
-
-# Using the newest stable engine
-model = genai.GenerativeModel('gemini-3-flash')
